@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer sprite;
     private PlayerController playerController;
 
+    // Input
+    private float mobileInputX = 0f;
     private Vector2 moveInput;
     private bool isJumping = false;
 
@@ -51,26 +53,47 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        moveInput = playerController.Movement.Move.ReadValue<Vector2>();
+        if (Application.isMobilePlatform)
+        {
+            moveInput = new Vector2(mobileInputX, 0f);
+        }
+        else
+        {
+            moveInput = playerController.Movement.Move.ReadValue<Vector2>();
+        }
     }
 
     private void FixedUpdate()
     {
-        // Tentukan kecepatan target sesuai dengan input gerakan horizontal
+        Debug.Log($"[FixedUpdate] moveInput.x: {moveInput.x}, moveSpeed: {moveSpeed}, rb.velocity.x: {rb.velocity.x}");
+
         Vector2 targetVelocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = targetVelocity;
+
         UpdateAnimation();
+
+        if (isGrounded() && Mathf.Abs(rb.velocity.y) < 0.01f)
+        {
+            isJumping = false;
+        }
     }
+
 
     private void UpdateAnimation()
     {
         MovementState state;
 
-        // Mengganti "walk" dengan "run" jika ada input horizontal
-        if (moveInput.x != 0f)
+        float horizontal = moveInput.x;
+
+        if (horizontal > 0f)
         {
             state = MovementState.run;
-            sprite.flipX = moveInput.x < 0f;  // Membalik sprite ketika bergerak ke kiri
+            sprite.flipX = false;
+        }
+        else if (horizontal < 0f)
+        {
+            state = MovementState.run;
+            sprite.flipX = true;
         }
         else
         {
@@ -99,6 +122,36 @@ public class PlayerMovement : MonoBehaviour
         if (isGrounded())
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            isJumping = true;
+        }
+    }
+
+    // ======= MOBILE INPUT METHODS FOR UI BUTTONS =======
+
+    public void MoveLeft(bool isPressed)
+    {
+        Debug.Log("MoveLeft: " + isPressed); // Tambahkan ini
+        if (isPressed)
+            mobileInputX = -1f;
+        else if (mobileInputX == -1f)
+            mobileInputX = 0f;
+    }
+
+    public void MoveRight(bool isPressed)
+    {
+        Debug.Log("MoveRight: " + isPressed); // Tambahkan ini
+        if (isPressed)
+            mobileInputX = 1f;
+        else if (mobileInputX == 1f)
+            mobileInputX = 0f;
+    }
+
+
+    public void MobileJump()
+    {
+        if (isGrounded())
+        {
+            Jump();
         }
     }
 }
