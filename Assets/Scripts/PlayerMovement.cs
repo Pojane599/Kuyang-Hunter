@@ -14,6 +14,10 @@ public class PlayerMovement : MonoBehaviour
     private Animator anim;
     private SpriteRenderer sprite;
     private PlayerController playerController;
+    public GameObject attackPoint;
+    public float radius;
+    public LayerMask enemies;
+    public float damage;
 
     // Input
     private float mobileInputX = 0f;
@@ -61,11 +65,16 @@ public class PlayerMovement : MonoBehaviour
         {
             moveInput = playerController.Movement.Move.ReadValue<Vector2>();
         }
+        if (Input.GetMouseButtonDown(0))
+        {
+            anim.SetBool("attack", true);
+        }
+        // Attack();
     }
 
     private void FixedUpdate()
     {
-        Debug.Log($"[FixedUpdate] moveInput.x: {moveInput.x}, moveSpeed: {moveSpeed}, rb.velocity.x: {rb.velocity.x}");
+        // Debug.Log($"[FixedUpdate] moveInput.x: {moveInput.x}, moveSpeed: {moveSpeed}, rb.velocity.x: {rb.velocity.x}");
 
         Vector2 targetVelocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = targetVelocity;
@@ -130,7 +139,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void MoveLeft(bool isPressed)
     {
-        Debug.Log("MoveLeft: " + isPressed); // Tambahkan ini
+        Debug.Log("MoveLeft: " + isPressed); 
         if (isPressed)
             mobileInputX = -1f;
         else if (mobileInputX == -1f)
@@ -139,7 +148,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void MoveRight(bool isPressed)
     {
-        Debug.Log("MoveRight: " + isPressed); // Tambahkan ini
+        Debug.Log("MoveRight: " + isPressed); 
         if (isPressed)
             mobileInputX = 1f;
         else if (mobileInputX == 1f)
@@ -154,4 +163,39 @@ public class PlayerMovement : MonoBehaviour
             Jump();
         }
     }
+
+    public void attack()
+    {
+        Collider2D[] enemiesHit = Physics2D.OverlapCircleAll(attackPoint.transform.position, radius, enemies);
+        foreach (Collider2D enemyGameObject in enemiesHit)
+        {
+            Debug.Log("Hit enemy");
+            EnemyHealth enemyHealth = enemyGameObject.GetComponent<EnemyHealth>();
+            if (enemyHealth != null)
+            {
+                enemyHealth.TakeDamage(damage); // Gunakan method TakeDamage()
+            }
+        }
+    }
+
+    public void endAttack()
+    {
+        anim.SetBool("attack", false);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(attackPoint.transform.position, radius);
+    }
+    // void Attack()
+    // {
+    //     if(Input.GetButtonDown("Fire1"))
+    //     {
+    //         anim.SetBool("attack",true);
+    //     }
+    //     if(Input.GetButtonUp("Fire1"))
+    //     {
+    //         anim.SetBool("attack",false);
+    //     }
+    // }
 }
