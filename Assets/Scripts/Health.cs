@@ -31,4 +31,17 @@ public class Health : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    public void AddHealth(int amount)
+    {
+        health += amount;
+
+        // Batas maksimum health
+        if (health > maxHealth)
+        {
+            health = maxHealth;
+        }
+
+        // Update UI
+        slider.value = health;
+    }
 }

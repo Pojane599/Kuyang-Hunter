@@ -187,15 +187,13 @@ public class PlayerMovement : MonoBehaviour
     {
         Gizmos.DrawWireSphere(attackPoint.transform.position, radius);
     }
-    // void Attack()
+
+    // public void TakeDamage(int amount)
     // {
-    //     if(Input.GetButtonDown("Fire1"))
+    //     health -= amount;
+    //     if (health <= 0)
     //     {
-    //         anim.SetBool("attack",true);
-    //     }
-    //     if(Input.GetButtonUp("Fire1"))
-    //     {
-    //         anim.SetBool("attack",false);
+    //         Die();
     //     }
     // }
 }
